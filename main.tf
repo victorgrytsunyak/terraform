@@ -24,10 +24,6 @@ resource "google_compute_instance" "vm_azimuth" {
         network_tier    = "STANDARD"
         }
       } 
-      service_account {
-    email  = "azimuth@azimuth-80700.iam.gserviceaccount.com"
-    scopes = ["cloud-platform"]
-  }
 // Adding ssh keys
 metadata = {
     enable-oslogin = false
@@ -35,8 +31,12 @@ metadata = {
     "ssh-keys" = <<EOT
     admin:ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCdBNZcZ26lztFNd4d6plKF9dal321CQO0QnlLkWNo6fwCVk2tl0h35q7q6/groTROa//tYgIg3MIEDfdBXONj/fnQnYOvXFl3egwyHbkDAmmtrtGW2qr0f3AzPIaQw4nXxOys6lKvGCpgVJ+7r2BAweuc926ZFHyNuETkSOkotUJ6WHBhCgGj4uxuAU2/FSzIroWPgL3L3X0CxUSOV8ex4JpDK0TIDiB3Ed/WZZFdYZqty19jiwsC17SIVSSabUTXCGzFTKqFvYDY3q7YGwEfQnnOLNHMLqwaq/3fxoCXx75z+GkrOIxQIG1nYHU8D1ppAn+TpM92gICmKPJ/iJJj4pp8B21SzMK6S+PE7IJWZ37FrqhJdMgavIsukjsa7qm9jp6U4a46pihZEBwjM284EBXIN9496AUEkcC+5vTbi1Uzr80QdPf3XmKkC+2a/8P7eHSPT7qhO1unz92No6OJ2NnU46j4o2fxjOzHVOGyo7BRyyMW1f+UDtbKubI9xp3U= admin
     EOT
-    
-    metadata_startup_script = file("script.sh")  
+  }
+metadata_startup_script = file("script.sh")
+
+service_account {
+    email  = "azimuth@azimuth-80700.iam.gserviceaccount.com"
+    scopes = ["cloud-platform"]
   }
 }
 
@@ -57,34 +57,18 @@ resource "google_compute_instance" "vm_ubuntu" {
         network_tier   = "STANDARD"
         }
       } 
-      service_account {
-    email  = "azimuth@azimuth-80700.iam.gserviceaccount.com"
-    scopes = ["cloud-platform"]
-  }
-
 metadata = {
     enable-oslogin = false
     block-project-ssh-keys = true
     "ssh-keys" = <<EOT
     root:ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCdBNZcZ26lztFNd4d6plKF9dal321CQO0QnlLkWNo6fwCVk2tl0h35q7q6/groTROa//tYgIg3MIEDfdBXONj/fnQnYOvXFl3egwyHbkDAmmtrtGW2qr0f3AzPIaQw4nXxOys6lKvGCpgVJ+7r2BAweuc926ZFHyNuETkSOkotUJ6WHBhCgGj4uxuAU2/FSzIroWPgL3L3X0CxUSOV8ex4JpDK0TIDiB3Ed/WZZFdYZqty19jiwsC17SIVSSabUTXCGzFTKqFvYDY3q7YGwEfQnnOLNHMLqwaq/3fxoCXx75z+GkrOIxQIG1nYHU8D1ppAn+TpM92gICmKPJ/iJJj4pp8B21SzMK6S+PE7IJWZ37FrqhJdMgavIsukjsa7qm9jp6U4a46pihZEBwjM284EBXIN9496AUEkcC+5vTbi1Uzr80QdPf3XmKkC+2a/8P7eHSPT7qhO1unz92No6OJ2NnU46j4o2fxjOzHVOGyo7BRyyMW1f+UDtbKubI9xp3U= admin
     EOT
-    
-    metadata_startup_script = <<EOT
-#!/bin/bash
-sudo apt-get update -y
-sudo apt-get install -y \
-    ca-certificates \
-    curl \
-    gnupg \
-    lsb-release
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-sudo apt-get update -y
-sudo apt-get install -y docker.io
-sudo docker run hello-world
-EOT
-  
+}
+metadata_startup_script = file("startup.sh")
+service_account {
+    email  = "azimuth@azimuth-80700.iam.gserviceaccount.com"
+    scopes = ["cloud-platform"]
   }
-
 }
  
 // Firewall set up
