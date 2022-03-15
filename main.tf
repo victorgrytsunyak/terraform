@@ -2,7 +2,7 @@ provider "google" {
   credentials = file("gcp_service_account_cred.json")
   project     = "azimuth-80700"
   region      = "europe-west3"
-  zone        = "europe-west3-a"
+  zone        = "europe-west3-b"
 }
 
 
