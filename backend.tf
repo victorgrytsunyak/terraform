@@ -1,6 +1,6 @@
 terraform {
   backend "gcs" {
-    bucket       = "azimuth-bucket"
-    prefix       = "terraform"
+    bucket = "azimuth-bucket"
+    prefix = "terraform"
   }
 }
