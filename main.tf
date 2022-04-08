@@ -18,6 +18,7 @@ resource "google_service_account" "SA" {
   account_id   = "azimuth"
   display_name = "azimuth"
   description  = "terraform_sa"
+
 }
 
 module "vms" {
