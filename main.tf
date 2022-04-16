@@ -8,26 +8,50 @@ terraform {
 }
 
 provider "google" {
-  project = "azimuth-80700"
+  project = "azimuthtv10-347408"
   region  = "europe-west3"
   zone    = "europe-west3-b"
 }
 
 resource "google_service_account" "SA" {
-  project      = "azimuth-80700"
-  account_id   = "azimuth"
-  display_name = "azimuth"
-  description  = "terraform_sa"
-
+  project              = "azimuthtv10-347408"
+  account_id           = "azimuth"
+  display_name         = "azimuth"
+  description          = "terraform_sa"
 }
 
-module "vms" {
-  source        = "./modules/instances"
-  project       = "azimuth-80700"
-  region        = "europe-west3"
-  zone          = "europe-west3-b"
-  machine_type  = "g1-small"
+resource "google_service_account_iam_binding" "admin-account-iam" {
+  service_account_id = google_service_account.SA.name
+  role               = "roles/iam.serviceAccountUser"
+
+  members = [
+    "serviceAccount:azimuth@azimuthtv10-347408.iam.gserviceaccount.com",
+  ]
+}
+
+resource "google_project_iam_member" "project" {
+  project = "azimuthtv10-347408"
+  role    = "roles/owner"
+  member  = "serviceAccount:azimuth@azimuthtv10-347408.iam.gserviceaccount.com"
+}
+
+resource "google_compute_network" "az-network" {
+  project                 = "azimuthtv10-347408"
+  name                    = "az-network"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "az-subnet" {
+  project       = "azimuthtv10-347408"
+  name          = "az-subnet"
+  network       = google_compute_network.az-network.id
   ip_cidr_range = "10.10.10.0/24"
+
+log_config {
+    aggregation_interval = "INTERVAL_10_MIN"
+    flow_sampling        = 0.5
+    metadata             = "INCLUDE_ALL_METADATA"
+  }
 }
 
 // Firewall set up
@@ -55,7 +79,7 @@ resource "google_compute_firewall" "http-https" {
   }
   target_tags    = ["web"]
 }
-resource "google_storage_bucket" "azimuth-bucket-store" {
+ resource "google_storage_bucket" "azimuth-bucket-store" {
   name           = "azimuth-vr-bucket"
   location       = "EU"
   force_destroy  = true
@@ -69,4 +93,20 @@ resource "google_storage_bucket" "azimuth-bucket-store" {
       type = "Delete"
     }
   }
+}
+
+module "vms" {
+  source          = "./modules/instances"
+  project         = "azimuthtv10-347408"
+  region          = "europe-west3"
+  zone            = "europe-west3-b"
+  subnetwork      = "az-subnet"
+  ip_range        = "10.10.10.0/24"
+  tags            = ["web", "ssh"]
+  vm1_name        = "vm1"
+  vm2_name        = "vm2"
+  machine_type1   = "g1-small"
+  machine_type2   = "g1-small"
+  image_vm1       = "centos-cloud/centos-7"
+  image_vm2       = "ubuntu-os-cloud/ubuntu-2004-lts"
 }

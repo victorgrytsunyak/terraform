@@ -1,42 +1,23 @@
 terraform {
     required_version = ">=1.1.3"
 }
-resource "google_compute_network" "az-network" {
-  project                 = var.project
-  name                    = "az-network"
-  auto_create_subnetworks = false
-}
-
-resource "google_compute_subnetwork" "az-subnet" {
-  project       = var.project
-  name          = "az-subnetwork"
-  ip_cidr_range = var.ip_cidr_range
-  region        = var.region
-  network       = google_compute_network.az-network.id
-
-log_config {
-    aggregation_interval = "INTERVAL_10_MIN"
-    flow_sampling        = 0.5
-    metadata             = "INCLUDE_ALL_METADATA"
-  }
-}
 
 resource "google_compute_instance" "vm-centos" {
   project                   = var.project
   zone                      = var.zone
-  name                      = "vm1"
-  machine_type              = var.machine_type
-  tags                      = ["ssh", "web"]
+  name                      = var.vm1_name
+  machine_type              = var.machine_type1
+  tags                      = var.tags
   allow_stopping_for_update = true
 
   boot_disk {
     initialize_params {
-      image = "centos-cloud/centos-7"
+      image = var.image_vm1
     }
   }
   //Network config
   network_interface {
-    subnetwork = google_compute_subnetwork.az-subnet.id
+    subnetwork = var.subnetwork //google_compute_subnetwork.az-subnet.id
     access_config {
     }
   }
@@ -45,7 +26,8 @@ resource "google_compute_instance" "vm-centos" {
     enable-oslogin         = false
     block-project-ssh-keys = true
     "ssh-keys"             = <<EOT
-    admin:ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCdBNZcZ26lztFNd4d6plKF9dal321CQO0QnlLkWNo6fwCVk2tl0h35q7q6/groTROa//tYgIg3MIEDfdBXONj/fnQnYOvXFl3egwyHbkDAmmtrtGW2qr0f3AzPIaQw4nXxOys6lKvGCpgVJ+7r2BAweuc926ZFHyNuETkSOkotUJ6WHBhCgGj4uxuAU2/FSzIroWPgL3L3X0CxUSOV8ex4JpDK0TIDiB3Ed/WZZFdYZqty19jiwsC17SIVSSabUTXCGzFTKqFvYDY3q7YGwEfQnnOLNHMLqwaq/3fxoCXx75z+GkrOIxQIG1nYHU8D1ppAn+TpM92gICmKPJ/iJJj4pp8B21SzMK6S+PE7IJWZ37FrqhJdMgavIsukjsa7qm9jp6U4a46pihZEBwjM284EBXIN9496AUEkcC+5vTbi1Uzr80QdPf3XmKkC+2a/8P7eHSPT7qhO1unz92No6OJ2NnU46j4o2fxjOzHVOGyo7BRyyMW1f+UDtbKubI9xp3U= admin
+
+    admin:ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDbi+rm7By+HYqpS0Uy5FMmGD50Mf7hoW6iHIVru28W4/MZAK9XmZXzI1KKDA/eS4g0E5XScue/is3329VGBEljn6ZCO/FO6xEhTv4UEklPIGJDWa89/IuX39KE/7uI0wQ+Fjj35YEhbe8z9cmWrBbba0Z7zQDZpAxKVEU3+R5MHc+O1Ctm6PbAdtIsDGjHx3zYyBp3tT9SJbxIp2m1DNEa1BMkNXb2EBbR8V8eCHKxxkOhgv06I//xkQGIB9vySv1AXwEixg4iW93eeMnzg0dYSeCvt+PhStpGnekqfRow74LWfwDo7FwP2A0Ycmc1KKLOZk9N8kR6ghzBiJ5KYdOoYoL4ezNyD0kZjrfmP/QRaOxhrrvFsJ8LOnLQps6RQyDIOteZ4GYfr+1zG8AfQF0ZMVVUketNFsQ2hpMms9rVWE0NAis4evoGo6s6RoqElgrWrd3PYKb8t0+dmFa3kHXLHD84mn4sgnt8dqbuayW/hljGzELYmK1byd/JcONgLRc= admin@DESKTOP-9EEH9LJ
     EOT
   }
   metadata_startup_script = file("script.sh")
@@ -55,18 +37,18 @@ resource "google_compute_instance" "vm-centos" {
 resource "google_compute_instance" "vm-ubuntu" {
   project                   = var.project
   zone                      = var.zone
-  name                      = "vm2"
-  machine_type              = var.machine_type
-  tags                      = ["ssh", "web"]
+  name                      = var.vm2_name
+  machine_type              = var.machine_type2
+  tags                      = var.tags //list
   allow_stopping_for_update = true
 
   boot_disk {
     initialize_params {
-      image = "ubuntu-os-cloud/ubuntu-2004-lts"
+      image = var.image_vm2 // var.image
     }
   }
   network_interface {
-    subnetwork = google_compute_subnetwork.az-subnet.id
+    subnetwork = var.subnetwork  //var.subnetwork
     access_config {
 
     }
@@ -75,7 +57,8 @@ resource "google_compute_instance" "vm-ubuntu" {
     enable-oslogin         = false
     block-project-ssh-keys = true
    "ssh-keys"             = <<EOT
-    root:ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCdBNZcZ26lztFNd4d6plKF9dal321CQO0QnlLkWNo6fwCVk2tl0h35q7q6/groTROa//tYgIg3MIEDfdBXONj/fnQnYOvXFl3egwyHbkDAmmtrtGW2qr0f3AzPIaQw4nXxOys6lKvGCpgVJ+7r2BAweuc926ZFHyNuETkSOkotUJ6WHBhCgGj4uxuAU2/FSzIroWPgL3L3X0CxUSOV8ex4JpDK0TIDiB3Ed/WZZFdYZqty19jiwsC17SIVSSabUTXCGzFTKqFvYDY3q7YGwEfQnnOLNHMLqwaq/3fxoCXx75z+GkrOIxQIG1nYHU8D1ppAn+TpM92gICmKPJ/iJJj4pp8B21SzMK6S+PE7IJWZ37FrqhJdMgavIsukjsa7qm9jp6U4a46pihZEBwjM284EBXIN9496AUEkcC+5vTbi1Uzr80QdPf3XmKkC+2a/8P7eHSPT7qhO1unz92No6OJ2NnU46j4o2fxjOzHVOGyo7BRyyMW1f+UDtbKubI9xp3U= admin
+    
+    root:ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDbi+rm7By+HYqpS0Uy5FMmGD50Mf7hoW6iHIVru28W4/MZAK9XmZXzI1KKDA/eS4g0E5XScue/is3329VGBEljn6ZCO/FO6xEhTv4UEklPIGJDWa89/IuX39KE/7uI0wQ+Fjj35YEhbe8z9cmWrBbba0Z7zQDZpAxKVEU3+R5MHc+O1Ctm6PbAdtIsDGjHx3zYyBp3tT9SJbxIp2m1DNEa1BMkNXb2EBbR8V8eCHKxxkOhgv06I//xkQGIB9vySv1AXwEixg4iW93eeMnzg0dYSeCvt+PhStpGnekqfRow74LWfwDo7FwP2A0Ycmc1KKLOZk9N8kR6ghzBiJ5KYdOoYoL4ezNyD0kZjrfmP/QRaOxhrrvFsJ8LOnLQps6RQyDIOteZ4GYfr+1zG8AfQF0ZMVVUketNFsQ2hpMms9rVWE0NAis4evoGo6s6RoqElgrWrd3PYKb8t0+dmFa3kHXLHD84mn4sgnt8dqbuayW/hljGzELYmK1byd/JcONgLRc= admin@DESKTOP-9EEH9LJ
     EOT
   }
   metadata_startup_script = file("startup.sh")
