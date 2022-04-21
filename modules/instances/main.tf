@@ -2,7 +2,7 @@ terraform {
     required_version = ">=1.1.3"
 }
 
-resource "google_compute_instance" "vms" {
+resource "google_compute_instance" "vm" {
   project                   = var.project
   zone                      = var.zone
   name                      = var.vm_name
