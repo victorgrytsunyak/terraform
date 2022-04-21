@@ -27,7 +27,7 @@ resource "google_compute_instance" "vm" {
   metadata_startup_script = var.startup_script
 
   service_account {
-    email  = "azimuth@azimuthtv10-347408.iam.gserviceaccount.com"
-    scopes = ["storage-rw"]
+    email  = var.email // "azimuth@azimuthtv10-347408.iam.gserviceaccount.com"
+    scopes = var.scope  // ["storage-rw"]
   }
 }

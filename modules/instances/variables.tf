@@ -43,3 +43,11 @@ variable "startup_script" {
 variable "metadata" {
   type        = map
 }
+
+variable "email" {
+  type = string
+}
+
+variable "scope" {
+  type  = list
+}
