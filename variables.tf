@@ -11,3 +11,38 @@ variable "zone" {
   type    = string
   default = "europe-west3-b"
 }
+
+variable "sa_email" {
+  type = string
+  default = "azimuth@azimuthtv10-347408.iam.gserviceaccount.com"
+}
+
+variable "scopes_rules" {
+  type = list
+  default = ["storage-rw"]
+}
+
+variable "tags" {
+  type = list
+  default = ["web", "ssh"]
+}
+
+variable "ip" {
+  type = string
+  default = "10.10.10.0/24"
+}
+
+variable "vm_type" {
+  type = string
+  default = "g1-small"
+}
+
+variable "subnet" {
+  type = string
+  default = "az-subnet"  
+}
+
+variable "subnet_name" {
+  type = string
+  default = "az-subnet"
+}

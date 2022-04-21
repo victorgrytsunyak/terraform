@@ -37,7 +37,7 @@ resource "google_compute_network" "az-network" {
 
 resource "google_compute_subnetwork" "az-subnet" {
   project       = var.project
-  name          = "az-subnet"
+  name          = var.subnet_name  //"az-subnet"
   network       = google_compute_network.az-network.id
   ip_cidr_range = "10.10.10.0/24"
 
@@ -91,11 +91,11 @@ resource "google_storage_bucket" "azimuth-bucket-store" {
 
 module "vm1" {
   source         = "./modules/instances"
-  subnetwork     = "az-subnet"
-  ip_range       = "10.10.10.0/24"
-  tags           = ["web", "ssh"]
+  subnetwork     = var.subnet // "az-subnet"
+  ip_range       = var.ip  //"10.10.10.0/24"
+  tags           = var.tags //["web", "ssh"]
   vm_name        = "vm1"
-  machine_type   = "g1-small"
+  machine_type   = var.vm_type  //"g1-small"
   image_vm       = "centos-cloud/centos-7"
   startup_script = file("script.sh")
   metadata = {
@@ -106,17 +106,17 @@ module "vm1" {
     admin:ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDbi+rm7By+HYqpS0Uy5FMmGD50Mf7hoW6iHIVru28W4/MZAK9XmZXzI1KKDA/eS4g0E5XScue/is3329VGBEljn6ZCO/FO6xEhTv4UEklPIGJDWa89/IuX39KE/7uI0wQ+Fjj35YEhbe8z9cmWrBbba0Z7zQDZpAxKVEU3+R5MHc+O1Ctm6PbAdtIsDGjHx3zYyBp3tT9SJbxIp2m1DNEa1BMkNXb2EBbR8V8eCHKxxkOhgv06I//xkQGIB9vySv1AXwEixg4iW93eeMnzg0dYSeCvt+PhStpGnekqfRow74LWfwDo7FwP2A0Ycmc1KKLOZk9N8kR6ghzBiJ5KYdOoYoL4ezNyD0kZjrfmP/QRaOxhrrvFsJ8LOnLQps6RQyDIOteZ4GYfr+1zG8AfQF0ZMVVUketNFsQ2hpMms9rVWE0NAis4evoGo6s6RoqElgrWrd3PYKb8t0+dmFa3kHXLHD84mn4sgnt8dqbuayW/hljGzELYmK1byd/JcONgLRc= admin@DESKTOP-9EEH9LJ
     EOT
   }
-  email = "azimuth@azimuthtv10-347408.iam.gserviceaccount.com"
-  scope = ["storage-rw"]
+  email = var.sa_email
+  scope = var.scopes_rules
 }
 
 module "vm2" {
   source         = "./modules/instances"
-  subnetwork     = "az-subnet"
-  ip_range       = "10.10.10.0/24"
-  tags           = ["web", "ssh"]
+  subnetwork     = var.subnet // "az-subnet"
+  ip_range       = var.ip  // "10.10.10.0/24"
+  tags           = var.tags // ["web", "ssh"]
   vm_name        = "vm2"
-  machine_type   = "g1-small"
+  machine_type   = var.vm_type //"g1-small"
   image_vm       = "ubuntu-os-cloud/ubuntu-2004-lts"
   startup_script = file("startup.sh")
   metadata = {
@@ -127,6 +127,6 @@ module "vm2" {
     root:ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDbi+rm7By+HYqpS0Uy5FMmGD50Mf7hoW6iHIVru28W4/MZAK9XmZXzI1KKDA/eS4g0E5XScue/is3329VGBEljn6ZCO/FO6xEhTv4UEklPIGJDWa89/IuX39KE/7uI0wQ+Fjj35YEhbe8z9cmWrBbba0Z7zQDZpAxKVEU3+R5MHc+O1Ctm6PbAdtIsDGjHx3zYyBp3tT9SJbxIp2m1DNEa1BMkNXb2EBbR8V8eCHKxxkOhgv06I//xkQGIB9vySv1AXwEixg4iW93eeMnzg0dYSeCvt+PhStpGnekqfRow74LWfwDo7FwP2A0Ycmc1KKLOZk9N8kR6ghzBiJ5KYdOoYoL4ezNyD0kZjrfmP/QRaOxhrrvFsJ8LOnLQps6RQyDIOteZ4GYfr+1zG8AfQF0ZMVVUketNFsQ2hpMms9rVWE0NAis4evoGo6s6RoqElgrWrd3PYKb8t0+dmFa3kHXLHD84mn4sgnt8dqbuayW/hljGzELYmK1byd/JcONgLRc= admin@DESKTOP-9EEH9LJ
     EOT
   }
-  email = "azimuth@azimuthtv10-347408.iam.gserviceaccount.com"
-  scope = ["storage-rw"]
+  email = var.sa_email
+  scope = var.scopes_rules
 }

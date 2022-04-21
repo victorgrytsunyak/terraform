@@ -46,8 +46,10 @@ variable "metadata" {
 
 variable "email" {
   type = string
+  default = "azimuth@azimuthtv10-347408.iam.gserviceaccount.com"
 }
 
 variable "scope" {
   type  = list
+  default = ["storage-rw"]
 }
