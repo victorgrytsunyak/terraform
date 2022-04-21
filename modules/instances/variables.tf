@@ -1,19 +1,18 @@
 variable "project" {
   type         = string
+  default      = "azimuthtv10-347408"
 }
 variable "region" {
   type         = string
+  default      = "europe-west3"
 }
 
 variable "zone" {
   type         = string
+  default      = "europe-west3-b"
 }
 
-variable "vm1_name" {
-  type        = string
-}
-
-variable "vm2_name" {
+variable "vm_name" {
   type        = string
 }
 
@@ -21,19 +20,11 @@ variable "tags" {
   type         = list
 }
 
-variable "machine_type1" {
+variable "machine_type" {
   type         = string
 }
 
-variable "machine_type2" {
-  type         = string
-}
-
-variable "image_vm1" {
-  type        = string
-}
-
-variable "image_vm2" {
+variable "image_vm" {
   type        = string
 }
 
@@ -43,4 +34,12 @@ variable "subnetwork" {
 
 variable "ip_range" {
   type         = string  
+}
+
+variable "startup_script" {
+  type        = string
+}
+
+variable "metadata" {
+  type        = map
 }

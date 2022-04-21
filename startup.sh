@@ -8,3 +8,4 @@ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o 
 sudo apt-get update -y
 sudo apt-get install -y docker.io
 sudo docker run hello-world
+sudo apt-get install nginx -y
