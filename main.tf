@@ -31,13 +31,13 @@ resource "google_project_iam_member" "project_roles" {
 
 resource "google_compute_network" "az-network" {
   project                 = var.project
-  name                    = "az-network"
+  name                    = var.network_name //"az-network"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "az-subnet" {
   project       = var.project
-  name          = var.subnet_name  //"az-subnet"
+  name          = var.subnet_name //"az-subnet"
   network       = google_compute_network.az-network.id
   ip_cidr_range = "10.10.10.0/24"
 
@@ -92,10 +92,10 @@ resource "google_storage_bucket" "azimuth-bucket-store" {
 module "vm1" {
   source         = "./modules/instances"
   subnetwork     = var.subnet // "az-subnet"
-  ip_range       = var.ip  //"10.10.10.0/24"
-  tags           = var.tags //["web", "ssh"]
+  ip_range       = var.ip     //"10.10.10.0/24"
+  tags           = var.tags   //["web", "ssh"]
   vm_name        = "vm1"
-  machine_type   = var.vm_type  //"g1-small"
+  machine_type   = var.vm_type //"g1-small"
   image_vm       = "centos-cloud/centos-7"
   startup_script = file("script.sh")
   metadata = {
@@ -113,8 +113,8 @@ module "vm1" {
 module "vm2" {
   source         = "./modules/instances"
   subnetwork     = var.subnet // "az-subnet"
-  ip_range       = var.ip  // "10.10.10.0/24"
-  tags           = var.tags // ["web", "ssh"]
+  ip_range       = var.ip     // "10.10.10.0/24"
+  tags           = var.tags   // ["web", "ssh"]
   vm_name        = "vm2"
   machine_type   = var.vm_type //"g1-small"
   image_vm       = "ubuntu-os-cloud/ubuntu-2004-lts"

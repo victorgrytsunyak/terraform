@@ -9,3 +9,5 @@ sudo apt-get update -y
 sudo apt-get install -y docker.io
 sudo docker run hello-world
 sudo apt-get install nginx -y
+sudo systemctl enable nginx
+sudo systemctl start nginx

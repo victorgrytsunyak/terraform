@@ -7,4 +7,6 @@ sudo yum update -y
   sudo yum install -y docker-ce docker-ce-cli containerd.io
   sudo systemctl start docker
   sudo docker run hello-world
-  sudo yum install nginx -y
+  sudo yum install -y nginx
+  sudo systemctl enable nginx
+  sudo systemctl start nginx
