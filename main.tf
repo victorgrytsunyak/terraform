@@ -22,7 +22,7 @@ resource "google_service_account" "SA" {
 
 resource "google_project_iam_member" "project_roles" {
   for_each = toset([
-    "owner", "storage.admin"
+    "storage.objectAdmin"
   ])
   project = var.project
   role    = "roles/${each.key}"
@@ -46,6 +46,9 @@ resource "google_compute_subnetwork" "az-subnet" {
     flow_sampling        = 0.5
     metadata             = "INCLUDE_ALL_METADATA"
   }
+  depends_on = [
+    google_compute_network.az-network
+  ]
 }
 
 // Firewall set up
@@ -60,6 +63,9 @@ resource "google_compute_firewall" "ssh" {
     protocol = "tcp"
   }
   target_tags = ["ssh"]
+  depends_on = [
+    google_compute_network.az-network
+  ]
 }
 resource "google_compute_firewall" "http-https" {
   name          = "allow-http"
@@ -72,6 +78,9 @@ resource "google_compute_firewall" "http-https" {
     protocol = "tcp"
   }
   target_tags = ["web"]
+  depends_on = [
+    google_compute_network.az-network
+  ]
 }
 resource "google_storage_bucket" "azimuth-bucket-store" {
   name                        = "azimuth-vr-bucket"
@@ -107,7 +116,10 @@ module "vm1" {
     EOT
   }
   email = var.sa_email
-  scope = var.scopes_rules
+  scope = []
+  depends_on = [
+    google_compute_subnetwork.az-subnet
+  ]
 }
 
 module "vm2" {
@@ -128,5 +140,8 @@ module "vm2" {
     EOT
   }
   email = var.sa_email
-  scope = var.scopes_rules
+  scope = []
+   depends_on = [
+    google_compute_subnetwork.az-subnet
+  ]
 }
