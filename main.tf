@@ -98,7 +98,7 @@ resource "google_storage_bucket" "azimuth-bucket-store" {
   }
 }
 ## Module for installing VMs
-module "vms" {
+module "instances" {
   source = "./modules/instances"
   for_each = {
 
@@ -106,7 +106,8 @@ module "vms" {
       enable-oslogin         = false
       block-project-ssh-keys = true
       ssh-keys               = <<EOT
-    admin:ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDbi+rm7By+HYqpS0Uy5FMmGD50Mf7hoW6iHIVru28W4/MZAK9XmZXzI1KKDA/eS4g0E5XScue/is3329VGBEljn6ZCO/FO6xEhTv4UEklPIGJDWa89/IuX39KE/7uI0wQ+Fjj35YEhbe8z9cmWrBbba0Z7zQDZpAxKVEU3+R5MHc+O1Ctm6PbAdtIsDGjHx3zYyBp3tT9SJbxIp2m1DNEa1BMkNXb2EBbR8V8eCHKxxkOhgv06I//xkQGIB9vySv1AXwEixg4iW93eeMnzg0dYSeCvt+PhStpGnekqfRow74LWfwDo7FwP2A0Ycmc1KKLOZk9N8kR6ghzBiJ5KYdOoYoL4ezNyD0kZjrfmP/QRaOxhrrvFsJ8LOnLQps6RQyDIOteZ4GYfr+1zG8AfQF0ZMVVUketNFsQ2hpMms9rVWE0NAis4evoGo6s6RoqElgrWrd3PYKb8t0+dmFa3kHXLHD84mn4sgnt8dqbuayW/hljGzELYmK1byd/JcONgLRc= admin@DESKTOP-9EEH9LJ
+    admin:ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDc+ElEfosvoW6qPoCZWEyNCzD7cIrlBEfCauoEgI85eojs+KHIluZxPukiDCOo3siK3qJ3tJnd7/5oilVu2E8asA+iv/MGL9nASvN3uZjPXTy1ayAj4dHSLmSGBDLrgMafDmgMn7Hnc78FBXteb7NG9QTAplPbqJvBYGsCdLaZ11hkHXcjQU82NDsmoHumPb40BAQ5A5xNfg+SS4PnP6iyWnAgRELPcYkycX1n1oE0NiOwfZ0BvI16NNupsKja/lu8HyVnwLCiXyJ0FA31259T5ZJBjPRqscucPJIqU/yh5aGS/hVBCpkn5NcglltRoeIIGIEn5c/U1faXslBouars1P69EIRl4HS11LKSmX0PWHZez88rPy7CiLEPidvJO9uJmmB0gcnLbIzQj3JAXTFYT/qG8OlW4hVReAsTJ8dHtYqjVTN57CiN0/+FUS75eBlz2iCAT1E4wTN9PBWfXzMz4w0YLC5RNgCAolzjbhlNdTmTJAR4x6yRNQg/77OEL30= admin@DESKTOP-9EEH9LJ
+
     EOT
       }
     }
@@ -115,7 +116,8 @@ module "vms" {
       enable-oslogin         = false
       block-project-ssh-keys = true
       ssh-keys               = <<EOT
-    root:ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDbi+rm7By+HYqpS0Uy5FMmGD50Mf7hoW6iHIVru28W4/MZAK9XmZXzI1KKDA/eS4g0E5XScue/is3329VGBEljn6ZCO/FO6xEhTv4UEklPIGJDWa89/IuX39KE/7uI0wQ+Fjj35YEhbe8z9cmWrBbba0Z7zQDZpAxKVEU3+R5MHc+O1Ctm6PbAdtIsDGjHx3zYyBp3tT9SJbxIp2m1DNEa1BMkNXb2EBbR8V8eCHKxxkOhgv06I//xkQGIB9vySv1AXwEixg4iW93eeMnzg0dYSeCvt+PhStpGnekqfRow74LWfwDo7FwP2A0Ycmc1KKLOZk9N8kR6ghzBiJ5KYdOoYoL4ezNyD0kZjrfmP/QRaOxhrrvFsJ8LOnLQps6RQyDIOteZ4GYfr+1zG8AfQF0ZMVVUketNFsQ2hpMms9rVWE0NAis4evoGo6s6RoqElgrWrd3PYKb8t0+dmFa3kHXLHD84mn4sgnt8dqbuayW/hljGzELYmK1byd/JcONgLRc= admin@DESKTOP-9EEH9LJ
+    root:ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDc+ElEfosvoW6qPoCZWEyNCzD7cIrlBEfCauoEgI85eojs+KHIluZxPukiDCOo3siK3qJ3tJnd7/5oilVu2E8asA+iv/MGL9nASvN3uZjPXTy1ayAj4dHSLmSGBDLrgMafDmgMn7Hnc78FBXteb7NG9QTAplPbqJvBYGsCdLaZ11hkHXcjQU82NDsmoHumPb40BAQ5A5xNfg+SS4PnP6iyWnAgRELPcYkycX1n1oE0NiOwfZ0BvI16NNupsKja/lu8HyVnwLCiXyJ0FA31259T5ZJBjPRqscucPJIqU/yh5aGS/hVBCpkn5NcglltRoeIIGIEn5c/U1faXslBouars1P69EIRl4HS11LKSmX0PWHZez88rPy7CiLEPidvJO9uJmmB0gcnLbIzQj3JAXTFYT/qG8OlW4hVReAsTJ8dHtYqjVTN57CiN0/+FUS75eBlz2iCAT1E4wTN9PBWfXzMz4w0YLC5RNgCAolzjbhlNdTmTJAR4x6yRNQg/77OEL30= admin@DESKTOP-9EEH9LJ
+
     EOT
       }
     }
@@ -130,7 +132,7 @@ module "vms" {
   startup_script = each.value.startup_script
   metadata       = each.value.metadata
   email          = var.sa_email
-  scope          = []
+  scope          = var.scopes_rules
   depends_on = [
     google_compute_subnetwork.az-subnet
   ]
@@ -150,7 +152,8 @@ module "vms_count" {
       enable-oslogin         = false
       block-project-ssh-keys = true
       ssh-keys             = <<EOT
-    admin:ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDbi+rm7By+HYqpS0Uy5FMmGD50Mf7hoW6iHIVru28W4/MZAK9XmZXzI1KKDA/eS4g0E5XScue/is3329VGBEljn6ZCO/FO6xEhTv4UEklPIGJDWa89/IuX39KE/7uI0wQ+Fjj35YEhbe8z9cmWrBbba0Z7zQDZpAxKVEU3+R5MHc+O1Ctm6PbAdtIsDGjHx3zYyBp3tT9SJbxIp2m1DNEa1BMkNXb2EBbR8V8eCHKxxkOhgv06I//xkQGIB9vySv1AXwEixg4iW93eeMnzg0dYSeCvt+PhStpGnekqfRow74LWfwDo7FwP2A0Ycmc1KKLOZk9N8kR6ghzBiJ5KYdOoYoL4ezNyD0kZjrfmP/QRaOxhrrvFsJ8LOnLQps6RQyDIOteZ4GYfr+1zG8AfQF0ZMVVUketNFsQ2hpMms9rVWE0NAis4evoGo6s6RoqElgrWrd3PYKb8t0+dmFa3kHXLHD84mn4sgnt8dqbuayW/hljGzELYmK1byd/JcONgLRc= admin@DESKTOP-9EEH9LJ
+    admin:ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDc+ElEfosvoW6qPoCZWEyNCzD7cIrlBEfCauoEgI85eojs+KHIluZxPukiDCOo3siK3qJ3tJnd7/5oilVu2E8asA+iv/MGL9nASvN3uZjPXTy1ayAj4dHSLmSGBDLrgMafDmgMn7Hnc78FBXteb7NG9QTAplPbqJvBYGsCdLaZ11hkHXcjQU82NDsmoHumPb40BAQ5A5xNfg+SS4PnP6iyWnAgRELPcYkycX1n1oE0NiOwfZ0BvI16NNupsKja/lu8HyVnwLCiXyJ0FA31259T5ZJBjPRqscucPJIqU/yh5aGS/hVBCpkn5NcglltRoeIIGIEn5c/U1faXslBouars1P69EIRl4HS11LKSmX0PWHZez88rPy7CiLEPidvJO9uJmmB0gcnLbIzQj3JAXTFYT/qG8OlW4hVReAsTJ8dHtYqjVTN57CiN0/+FUS75eBlz2iCAT1E4wTN9PBWfXzMz4w0YLC5RNgCAolzjbhlNdTmTJAR4x6yRNQg/77OEL30= admin@DESKTOP-9EEH9LJ
+
     EOT
       }
   email          = var.sa_email
@@ -158,6 +161,75 @@ module "vms_count" {
   depends_on = [
     google_compute_subnetwork.az-subnet
   ]
+}
+
+resource "google_compute_instance_group" "webservers" {
+  project = var.project
+  zone = var.zone
+  name        = "terraform-webservers"
+  description = "Terraform instance group"
+  network     = google_compute_network.az-network.id
+
+
+  instances = [
+   abc = {a=1,b=2,c=3}
+   abc["a"]
+    "https://www.googleapis.com/compute/v1/projects/azimuthtv10-347408/zones/europe-west3-b/instances/instance0",
+    "https://www.googleapis.com/compute/v1/projects/azimuthtv10-347408/zones/europe-west3-b/instances/instance1",
+    "https://www.googleapis.com/compute/v1/projects/azimuthtv10-347408/zones/europe-west3-b/instances/vm1",
+    "https://www.googleapis.com/compute/v1/projects/azimuthtv10-347408/zones/europe-west3-b/instances/vm2",
+  ]
+
+  named_port {
+    name = "http"
+    port = "80"
+  }
+
+  named_port {
+    name = "https"
+    port = "443"
+  }
+  depends_on = [
+    module.instances, module.vms_count
+  ]
+}
+
+resource "google_compute_backend_service" "backend_https_service" {
+  name      = "backend-https-service"
+  port_name = "https"
+  protocol  = "HTTPS"
+
+  backend {
+    group = google_compute_instance_group.webservers.id
+  }
+
+  health_checks = [
+    google_compute_https_health_check.backend_https_health.id,
+  ]
+}
+
+resource "google_compute_https_health_check" "backend_https_health" {
+  name         = "https-health"
+  request_path = "/health_check"
+}
+
+resource "google_compute_backend_service" "backend_http_service" {
+  name      = "backend-http-service"
+  port_name = "http"
+  protocol  = "HTTP"
+
+  backend {
+    group = google_compute_instance_group.webservers.id
+  }
+
+  health_checks = [
+    google_compute_http_health_check.backend_http_health.id,
+  ]
+}
+
+resource "google_compute_http_health_check" "backend_http_health" {
+  name         = "http-health"
+  request_path = "/health_check"
 }
 
 //module "vm2" {
