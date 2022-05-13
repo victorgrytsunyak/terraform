@@ -28,6 +28,11 @@ variable "image_vm" {
   type        = string
 }
 
+variable "network" {
+  type = string
+  default = "az-network"
+}
+
 variable "subnetwork" {
   type        = string
 }

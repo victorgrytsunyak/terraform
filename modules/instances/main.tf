@@ -17,11 +17,14 @@ resource "google_compute_instance" "vms" {
   }
   //Network config
   network_interface {
+    network = var.network
     subnetwork = var.subnetwork
+    
     access_config {
-      
+      // Ephemeral public IP
     }
   }
+
   // Adding ssh keys
   metadata = var.metadata 
   metadata_startup_script = var.startup_script

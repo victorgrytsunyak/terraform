@@ -29,28 +29,6 @@ resource "google_project_iam_member" "project_roles" {
   member  = "serviceAccount:azimuth@azimuthtv10-347408.iam.gserviceaccount.com"
 }
 
-resource "google_compute_network" "az-network" {
-  project                 = var.project
-  name                    = var.network_name //"az-network"
-  auto_create_subnetworks = false
-}
-
-resource "google_compute_subnetwork" "az-subnet" {
-  project       = var.project
-  name          = var.subnet_name //"az-subnet"
-  network       = google_compute_network.az-network.id
-  ip_cidr_range = "10.10.10.0/24"
-
-  log_config {
-    aggregation_interval = "INTERVAL_10_MIN"
-    flow_sampling        = 0.5
-    metadata             = "INCLUDE_ALL_METADATA"
-  }
-  depends_on = [
-    google_compute_network.az-network
-  ]
-}
-
 // Firewall set up
 resource "google_compute_firewall" "ssh" {
   name          = "allow-ssh"
@@ -64,7 +42,7 @@ resource "google_compute_firewall" "ssh" {
   }
   target_tags = ["ssh"]
   depends_on = [
-    google_compute_network.az-network
+    module.network
   ]
 }
 resource "google_compute_firewall" "http-https" {
@@ -79,9 +57,10 @@ resource "google_compute_firewall" "http-https" {
   }
   target_tags = ["web"]
   depends_on = [
-    google_compute_network.az-network
+    module.network
   ]
 }
+
 resource "google_storage_bucket" "azimuth-bucket-store" {
   name                        = "azimuth-vr-bucket"
   location                    = "EU"
@@ -97,34 +76,37 @@ resource "google_storage_bucket" "azimuth-bucket-store" {
     }
   }
 }
+
+#Module for creating network
+module "network" {
+  source       = "./modules/network"
+  project      = var.project
+  network_name = "az-network"
+}
+
+#module for creating subnetwork
+module "subnetwork" {
+  source        = "./modules/subnetwork"
+  subnet_name   = "az-subnet"
+  ip_cidr_range = "10.10.10.0/24"
+  depends_on = [
+    module.network
+  ]
+}
+
 ## Module for installing VMs
 module "instances" {
   source = "./modules/instances"
   for_each = {
 
-    "vm1" = { machine_type = "g1-small", image_vm = "centos-cloud/centos-7", startup_script = file("script.sh"), metadata = {
-      enable-oslogin         = false
-      block-project-ssh-keys = true
-      ssh-keys               = <<EOT
-    admin:ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDc+ElEfosvoW6qPoCZWEyNCzD7cIrlBEfCauoEgI85eojs+KHIluZxPukiDCOo3siK3qJ3tJnd7/5oilVu2E8asA+iv/MGL9nASvN3uZjPXTy1ayAj4dHSLmSGBDLrgMafDmgMn7Hnc78FBXteb7NG9QTAplPbqJvBYGsCdLaZ11hkHXcjQU82NDsmoHumPb40BAQ5A5xNfg+SS4PnP6iyWnAgRELPcYkycX1n1oE0NiOwfZ0BvI16NNupsKja/lu8HyVnwLCiXyJ0FA31259T5ZJBjPRqscucPJIqU/yh5aGS/hVBCpkn5NcglltRoeIIGIEn5c/U1faXslBouars1P69EIRl4HS11LKSmX0PWHZez88rPy7CiLEPidvJO9uJmmB0gcnLbIzQj3JAXTFYT/qG8OlW4hVReAsTJ8dHtYqjVTN57CiN0/+FUS75eBlz2iCAT1E4wTN9PBWfXzMz4w0YLC5RNgCAolzjbhlNdTmTJAR4x6yRNQg/77OEL30= admin@DESKTOP-9EEH9LJ
-
-    EOT
-      }
+    "vm1" = { machine_type = "g1-small", image_vm = "centos-cloud/centos-7", startup_script = file("script.sh"), metadata = var.metadata.centos
     }
 
-    "vm2" = { machine_type = "f1-micro", image_vm = "ubuntu-os-cloud/ubuntu-2004-lts", startup_script = file("startup.sh"), metadata = {
-      enable-oslogin         = false
-      block-project-ssh-keys = true
-      ssh-keys               = <<EOT
-    root:ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDc+ElEfosvoW6qPoCZWEyNCzD7cIrlBEfCauoEgI85eojs+KHIluZxPukiDCOo3siK3qJ3tJnd7/5oilVu2E8asA+iv/MGL9nASvN3uZjPXTy1ayAj4dHSLmSGBDLrgMafDmgMn7Hnc78FBXteb7NG9QTAplPbqJvBYGsCdLaZ11hkHXcjQU82NDsmoHumPb40BAQ5A5xNfg+SS4PnP6iyWnAgRELPcYkycX1n1oE0NiOwfZ0BvI16NNupsKja/lu8HyVnwLCiXyJ0FA31259T5ZJBjPRqscucPJIqU/yh5aGS/hVBCpkn5NcglltRoeIIGIEn5c/U1faXslBouars1P69EIRl4HS11LKSmX0PWHZez88rPy7CiLEPidvJO9uJmmB0gcnLbIzQj3JAXTFYT/qG8OlW4hVReAsTJ8dHtYqjVTN57CiN0/+FUS75eBlz2iCAT1E4wTN9PBWfXzMz4w0YLC5RNgCAolzjbhlNdTmTJAR4x6yRNQg/77OEL30= admin@DESKTOP-9EEH9LJ
-
-    EOT
-      }
+    "vm2" = { machine_type = "f1-micro", image_vm = "ubuntu-os-cloud/ubuntu-2004-lts", startup_script = file("startup.sh"), metadata = var.metadata["ubuntu"]
     }
   }
-
-  subnetwork     = var.subnet
-  ip_range       = var.ip
+  subnetwork     = var.subnet_name
+  ip_range       = var.ip_cidr_range
   tags           = var.tags
   machine_type   = each.value.machine_type
   vm_name        = each.key
@@ -134,52 +116,71 @@ module "instances" {
   email          = var.sa_email
   scope          = var.scopes_rules
   depends_on = [
-    google_compute_subnetwork.az-subnet
+    module.subnetwork
   ]
 }
 
-module "vms_count" {
-  source         = "./modules/instances" 
-  count = 2
-  subnetwork     = var.subnet // "az-subnet"
-  ip_range       = var.ip     //"10.10.10.0/24"
-  tags           = var.tags   //["web", "ssh"]
-  vm_name        = "instance${count.index}"
-  machine_type   = var.vm_type //"g1-small"
-  image_vm       = "centos-cloud/centos-7"
+module "instances_count" {
+  // list
+  source         = "./modules/instances"
+  count          = 2
+  subnetwork     = var.subnet_name        // "az-subnet"
+  ip_range       = var.ip_cidr_range      //"10.10.10.0/24"
+  tags           = var.tags               //["web", "ssh"]
+  vm_name        = "vm${count.index + 3}" //var.vm_count[count.index +1]
+  machine_type   = var.vm_type            //"g1-small"
+  image_vm       = var.image
   startup_script = file("script.sh")
-  metadata       = {
-      enable-oslogin         = false
-      block-project-ssh-keys = true
-      ssh-keys             = <<EOT
-    admin:ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDc+ElEfosvoW6qPoCZWEyNCzD7cIrlBEfCauoEgI85eojs+KHIluZxPukiDCOo3siK3qJ3tJnd7/5oilVu2E8asA+iv/MGL9nASvN3uZjPXTy1ayAj4dHSLmSGBDLrgMafDmgMn7Hnc78FBXteb7NG9QTAplPbqJvBYGsCdLaZ11hkHXcjQU82NDsmoHumPb40BAQ5A5xNfg+SS4PnP6iyWnAgRELPcYkycX1n1oE0NiOwfZ0BvI16NNupsKja/lu8HyVnwLCiXyJ0FA31259T5ZJBjPRqscucPJIqU/yh5aGS/hVBCpkn5NcglltRoeIIGIEn5c/U1faXslBouars1P69EIRl4HS11LKSmX0PWHZez88rPy7CiLEPidvJO9uJmmB0gcnLbIzQj3JAXTFYT/qG8OlW4hVReAsTJ8dHtYqjVTN57CiN0/+FUS75eBlz2iCAT1E4wTN9PBWfXzMz4w0YLC5RNgCAolzjbhlNdTmTJAR4x6yRNQg/77OEL30= admin@DESKTOP-9EEH9LJ
-
-    EOT
-      }
+  metadata       = var.metadata.centos
   email          = var.sa_email
   scope          = []
   depends_on = [
-    google_compute_subnetwork.az-subnet
+    module.subnetwork
   ]
 }
 
-resource "google_compute_instance_group" "webservers" {
+resource "google_compute_global_forwarding_rule" "global_forwarding_rule" {
+  name       = "az-global-forwarding-rule"
+  project    = var.project
+  target     = google_compute_target_http_proxy.target_http_proxy.self_link
+  port_range = "80"
+}
+
+# used by one or more global forwarding rule to route incoming HTTP requests to a URL map
+resource "google_compute_target_http_proxy" "target_http_proxy" {
+  name    = "az-proxy"
   project = var.project
-  zone = var.zone
+  url_map = google_compute_url_map.url_map.self_link
+}
+
+# defines a group of virtual machines that will serve traffic for load balancing
+resource "google_compute_backend_service" "backend_service" {
+  name          = "az-backend-service"
+  project       = var.project
+  port_name     = "http"
+  protocol      = "HTTP"
+  health_checks = ["${google_compute_health_check.healthcheck.self_link}"]
+
+  backend {
+    group                 = google_compute_instance_group.webservers.self_link
+    balancing_mode        = "RATE"
+    max_rate_per_instance = 100
+  }
+}
+
+resource "google_compute_instance_group" "webservers" {
+  project     = var.project
+  zone        = var.zone
   name        = "terraform-webservers"
   description = "Terraform instance group"
-  network     = google_compute_network.az-network.id
 
-
-  instances = [
-   abc = {a=1,b=2,c=3}
-   abc["a"]
-    "https://www.googleapis.com/compute/v1/projects/azimuthtv10-347408/zones/europe-west3-b/instances/instance0",
-    "https://www.googleapis.com/compute/v1/projects/azimuthtv10-347408/zones/europe-west3-b/instances/instance1",
-    "https://www.googleapis.com/compute/v1/projects/azimuthtv10-347408/zones/europe-west3-b/instances/vm1",
-    "https://www.googleapis.com/compute/v1/projects/azimuthtv10-347408/zones/europe-west3-b/instances/vm2",
-  ]
-
+  instances =  "${module.instances_count[*].instance_id}"
+  
+  //values({ for instance_id, instances_foreach_id in module.instances :
+   // instance_id => instances_foreach_id.instance_id}) 
+    //module.instances_count[*].instance_id
+  //module.instances_count[*].instance_id 
+  
   named_port {
     name = "http"
     port = "80"
@@ -189,62 +190,25 @@ resource "google_compute_instance_group" "webservers" {
     name = "https"
     port = "443"
   }
-  depends_on = [
-    module.instances, module.vms_count
-  ]
+
 }
 
-resource "google_compute_backend_service" "backend_https_service" {
-  name      = "backend-https-service"
-  port_name = "https"
-  protocol  = "HTTPS"
-
-  backend {
-    group = google_compute_instance_group.webservers.id
+resource "google_compute_health_check" "healthcheck" {
+  name               = "az-healthcheck"
+  timeout_sec        = 1
+  check_interval_sec = 1
+  http_health_check {
+    port = 80
   }
-
-  health_checks = [
-    google_compute_https_health_check.backend_https_health.id,
-  ]
 }
 
-resource "google_compute_https_health_check" "backend_https_health" {
-  name         = "https-health"
-  request_path = "/health_check"
+# used to route requests to a backend service based on rules that you define for the host and path of an incoming URL
+resource "google_compute_url_map" "url_map" {
+  name            = "az-load-balancer"
+  project         = var.project
+  default_service = google_compute_backend_service.backend_service.self_link
 }
 
-resource "google_compute_backend_service" "backend_http_service" {
-  name      = "backend-http-service"
-  port_name = "http"
-  protocol  = "HTTP"
-
-  backend {
-    group = google_compute_instance_group.webservers.id
-  }
-
-  health_checks = [
-    google_compute_http_health_check.backend_http_health.id,
-  ]
-}
-
-resource "google_compute_http_health_check" "backend_http_health" {
-  name         = "http-health"
-  request_path = "/health_check"
-}
-
-//module "vm2" {
-// source         = "./modules/instances"
-// subnetwork     = var.subnet // "az-subnet"
-// ip_range       = var.ip     //"10.10.10.0/24"
-// tags           = var.tags   //["web", "ssh"]
-// vm_name        = "vm2"
-// machine_type   = var.vm_type //"g1-small"
-// image_vm       = "ubuntu-os-cloud/ubuntu-2004-lts"
-// startup_script = file("startup.sh")
-// metadata       = var.ssh_key_ub
-// email          = var.sa_email
-//  scope          = []
-//  depends_on = [
-//   google_compute_subnetwork.az-subnet
-// ]
-//}
+# locals{
+#   lb_instances = concat([tolist(module.instances_count[*].instance_id)]) //(module.instances.*.instance_id)
+# }
