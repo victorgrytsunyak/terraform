@@ -168,18 +168,19 @@ resource "google_compute_backend_service" "backend_service" {
   }
 }
 
+locals {
+  foreach_instnaces = values({ for instance_id, instances_foreach_id in module.instances :
+instance_id => instances_foreach_id.instance_id
+})
+}
+
 resource "google_compute_instance_group" "webservers" {
   project     = var.project
   zone        = var.zone
   name        = "terraform-webservers"
   description = "Terraform instance group"
 
-  instances =  "${module.instances_count[*].instance_id}"
-  
-  //values({ for instance_id, instances_foreach_id in module.instances :
-   // instance_id => instances_foreach_id.instance_id}) 
-    //module.instances_count[*].instance_id
-  //module.instances_count[*].instance_id 
+  instances = concat(module.instances_count[*].instance_id, local.foreach_instnaces[*])
   
   named_port {
     name = "http"
@@ -208,7 +209,3 @@ resource "google_compute_url_map" "url_map" {
   project         = var.project
   default_service = google_compute_backend_service.backend_service.self_link
 }
-
-# locals{
-#   lb_instances = concat([tolist(module.instances_count[*].instance_id)]) //(module.instances.*.instance_id)
-# }
