@@ -139,73 +139,25 @@ module "instances_count" {
   ]
 }
 
-resource "google_compute_global_forwarding_rule" "global_forwarding_rule" {
-  name       = "az-global-forwarding-rule"
-  project    = var.project
-  target     = google_compute_target_http_proxy.target_http_proxy.self_link
-  port_range = "80"
-}
-
-# used by one or more global forwarding rule to route incoming HTTP requests to a URL map
-resource "google_compute_target_http_proxy" "target_http_proxy" {
-  name    = "az-proxy"
-  project = var.project
-  url_map = google_compute_url_map.url_map.self_link
-}
-
-# defines a group of virtual machines that will serve traffic for load balancing
-resource "google_compute_backend_service" "backend_service" {
-  name          = "az-backend-service"
-  project       = var.project
-  port_name     = "http"
-  protocol      = "HTTP"
-  health_checks = ["${google_compute_health_check.healthcheck.self_link}"]
-
-  backend {
-    group                 = google_compute_instance_group.webservers.self_link
-    balancing_mode        = "RATE"
-    max_rate_per_instance = 100
-  }
-}
-
 locals {
   foreach_instnaces = values({ for instance_id, instances_foreach_id in module.instances :
-instance_id => instances_foreach_id.instance_id
-})
+    instance_id => instances_foreach_id.instance_id
+  })
 }
 
-resource "google_compute_instance_group" "webservers" {
-  project     = var.project
-  zone        = var.zone
-  name        = "terraform-webservers"
-  description = "Terraform instance group"
-
+module "lb" {
+  source = "./modules/load_balancer"
+  group_name = "terraform-webservers"
   instances = concat(module.instances_count[*].instance_id, local.foreach_instnaces[*])
-  
-  named_port {
-    name = "http"
-    port = "80"
-  }
-
-  named_port {
-    name = "https"
-    port = "443"
-  }
-
-}
-
-resource "google_compute_health_check" "healthcheck" {
-  name               = "az-healthcheck"
-  timeout_sec        = 1
-  check_interval_sec = 1
-  http_health_check {
-    port = 80
-  }
-}
-
-# used to route requests to a backend service based on rules that you define for the host and path of an incoming URL
-resource "google_compute_url_map" "url_map" {
-  name            = "az-load-balancer"
-  project         = var.project
-  default_service = google_compute_backend_service.backend_service.self_link
+  global_forwarding_rule_name = "az-global-forwarding-https-rule"
+  forwarding_port = "443"
+  proxy_name = "az-proxy"
+  ssl_name = "my-certificate"
+  privat_key = file("private.key")
+  certificate = file("certificate.crt")
+  backend_name = "az-http-backend-service"
+  backend_port_name = "http"
+  backend_port = "HTTP"
+  healthcheck_name = "az-http-healthcheck"
+  url_map_name = "az-https-load-balancer"
 }
