@@ -129,11 +129,11 @@ module "instances_count" {
   tags           = var.tags               //["web", "ssh"]
   vm_name        = "vm${count.index + 3}" //var.vm_count[count.index +1]
   machine_type   = var.vm_type            //"g1-small"
-  image_vm       = var.image
-  startup_script = file("script.sh")
-  metadata       = var.metadata.centos
+  image_vm       = var.image[count.index]
+  startup_script = file(var.scripts[count.index])//("script.sh")
+  metadata       = var.metadata_key[count.index]
   email          = var.sa_email
-  scope          = []
+  scope          = var.scopes_rules
   depends_on = [
     module.subnetwork
   ]
