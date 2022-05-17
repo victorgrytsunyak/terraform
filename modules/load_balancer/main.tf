@@ -8,7 +8,7 @@ resource "google_compute_instance_group" "webservers" {
   name        = var.group_name //"terraform-webservers"
   description = "Terraform instance group"
 
-  instances = var.instances//concat(module.instances_count[*].instance_id, local.foreach_instnaces[*])
+  instances = var.instances  //concat(module.instances_count[*].instance_id, local.foreach_instnaces[*])
 
   named_port {
     name = "http"
@@ -29,7 +29,7 @@ resource "google_compute_global_forwarding_rule" "global_forwarding_http_rule" {
   port_range = var.forwarding_port //"443"
 }
 
-# used by one or more global forwarding rule to route incoming HTTP requests to a URL map
+# used by one or more global forwarding rule to route incoming HTTPS requests to a URL map
 resource "google_compute_target_https_proxy" "target_https_proxy" {
   name             = var.proxy_name //"az-proxy"
   project          = var.project
