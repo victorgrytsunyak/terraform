@@ -63,7 +63,7 @@ resource "google_compute_health_check" "healthcheck" {
   timeout_sec        = 1
   check_interval_sec = 1
   http_health_check {
-    port = 80
+    port = var.healthcheck_port //var
   }
 }
 

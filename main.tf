@@ -30,32 +30,27 @@ resource "google_project_iam_member" "project_roles" {
 }
 
 // Firewall set up
-resource "google_compute_firewall" "ssh" {
-  name          = "allow-ssh"
-  network       = "az-network"
-  source_ranges = ["194.44.223.172/30"]
-
-
-  allow {
-    ports    = ["22"]
-    protocol = "tcp"
-  }
-  target_tags = ["ssh"]
+module "ssh" {
+  source            = "./modules/firewall"
+  firewall_name     = "allow-ssh"
+  network           = "az-network"
+  ip_source_ranges  = ["194.44.223.172/30"]
+  firewall_ports    = ["22"]
+  firewall_protocol = "tcp"
+  tags              = ["ssh"]
   depends_on = [
     module.network
   ]
 }
-resource "google_compute_firewall" "http-https" {
-  name          = "allow-http"
-  network       = "az-network"
-  source_ranges = ["0.0.0.0/0"]
 
-
-  allow {
-    ports    = ["80", "443"]
-    protocol = "tcp"
-  }
-  target_tags = ["web"]
+module "http_https" {
+  source            = "./modules/firewall"
+  firewall_name     = "allow-http-https"
+  network           = "az-network"
+  ip_source_ranges  = ["0.0.0.0/0"]
+  firewall_ports    = ["80", "443"]
+  firewall_protocol = "tcp"
+  tags              = ["web"]
   depends_on = [
     module.network
   ]
@@ -130,7 +125,7 @@ module "instances_count" {
   vm_name        = "vm${count.index + 3}" //var.vm_count[count.index +1]
   machine_type   = var.vm_type            //"g1-small"
   image_vm       = var.image[count.index]
-  startup_script = file(var.scripts[count.index])//("script.sh")
+  startup_script = file(var.scripts[count.index]) //("script.sh")
   metadata       = var.metadata_key[count.index]
   email          = var.sa_email
   scope          = var.scopes_rules
@@ -146,18 +141,19 @@ locals {
 }
 
 module "lb" {
-  source = "./modules/load_balancer"
-  group_name = "terraform-webservers"
-  instances = concat(module.instances_count[*].instance_id, local.foreach_instnaces[*])
+  source                      = "./modules/load_balancer"
+  group_name                  = "terraform-webservers"
+  instances                   = concat(module.instances_count[*].instance_id, local.foreach_instnaces[*])
   global_forwarding_rule_name = "az-global-forwarding-https-rule"
-  forwarding_port = "443"
-  proxy_name = "az-proxy"
-  ssl_name = "my-certificate"
-  privat_key = file("private.key")
-  certificate = file("certificate.crt")
-  backend_name = "az-http-backend-service"
-  backend_port_name = "http"
-  backend_port = "HTTP"
-  healthcheck_name = "az-http-healthcheck"
-  url_map_name = "az-https-load-balancer"
+  forwarding_port             = "443"
+  proxy_name                  = "az-proxy"
+  ssl_name                    = "my-certificate"
+  privat_key                  = file("private.key")
+  certificate                 = file("certificate.crt")
+  backend_name                = "az-http-backend-service"
+  backend_port_name           = "http"
+  backend_port                = "HTTP"
+  healthcheck_name            = "az-http-healthcheck"
+  healthcheck_port            = 80
+  url_map_name                = "az-https-load-balancer"
 }

@@ -19,9 +19,9 @@ resource "google_compute_instance" "vms" {
   network_interface {
     network = var.network
     subnetwork = var.subnetwork
-    access_config {
+    # access_config {
       
-    }
+    # }
   }
 
   // Adding ssh keys

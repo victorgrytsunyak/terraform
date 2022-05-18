@@ -63,3 +63,7 @@ variable "url_map_name" {
 variable "instances" {
   type = list
 }
+
+variable "healthcheck_port" {
+  type = string
+}

@@ -79,16 +79,16 @@ variable "image" {
 }
 
 variable "scripts" {
-  type = list(string)
+  type    = list(string)
   default = ["./script.sh", "./startup.sh"]
 }
 
 variable "metadata_key" {
-  type = list
+  type = list(any)
   default = [{
-      enable-oslogin         = false
-      block-project-ssh-keys = true
-      ssh-keys               = <<EOT
+    enable-oslogin         = false
+    block-project-ssh-keys = true
+    ssh-keys               = <<EOT
     admin:ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDc+ElEfosvoW6qPoCZWEyNCzD7cIrlBEfCauoEgI85eojs+KHIluZxPukiDCOo3siK3qJ3tJnd7/5oilVu2E8asA+iv/MGL9nASvN3uZjPXTy1ayAj4dHSLmSGBDLrgMafDmgMn7Hnc78FBXteb7NG9QTAplPbqJvBYGsCdLaZ11hkHXcjQU82NDsmoHumPb40BAQ5A5xNfg+SS4PnP6iyWnAgRELPcYkycX1n1oE0NiOwfZ0BvI16NNupsKja/lu8HyVnwLCiXyJ0FA31259T5ZJBjPRqscucPJIqU/yh5aGS/hVBCpkn5NcglltRoeIIGIEn5c/U1faXslBouars1P69EIRl4HS11LKSmX0PWHZez88rPy7CiLEPidvJO9uJmmB0gcnLbIzQj3JAXTFYT/qG8OlW4hVReAsTJ8dHtYqjVTN57CiN0/+FUS75eBlz2iCAT1E4wTN9PBWfXzMz4w0YLC5RNgCAolzjbhlNdTmTJAR4x6yRNQg/77OEL30= admin@DESKTOP-9EEH9LJ
 
     EOT
@@ -100,5 +100,5 @@ variable "metadata_key" {
     root:ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDc+ElEfosvoW6qPoCZWEyNCzD7cIrlBEfCauoEgI85eojs+KHIluZxPukiDCOo3siK3qJ3tJnd7/5oilVu2E8asA+iv/MGL9nASvN3uZjPXTy1ayAj4dHSLmSGBDLrgMafDmgMn7Hnc78FBXteb7NG9QTAplPbqJvBYGsCdLaZ11hkHXcjQU82NDsmoHumPb40BAQ5A5xNfg+SS4PnP6iyWnAgRELPcYkycX1n1oE0NiOwfZ0BvI16NNupsKja/lu8HyVnwLCiXyJ0FA31259T5ZJBjPRqscucPJIqU/yh5aGS/hVBCpkn5NcglltRoeIIGIEn5c/U1faXslBouars1P69EIRl4HS11LKSmX0PWHZez88rPy7CiLEPidvJO9uJmmB0gcnLbIzQj3JAXTFYT/qG8OlW4hVReAsTJ8dHtYqjVTN57CiN0/+FUS75eBlz2iCAT1E4wTN9PBWfXzMz4w0YLC5RNgCAolzjbhlNdTmTJAR4x6yRNQg/77OEL30= admin@DESKTOP-9EEH9LJ
 
     EOT
-    }]
+  }]
 }
