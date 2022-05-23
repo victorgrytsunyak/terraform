@@ -12,24 +12,13 @@ variable "zone" {
   default = "europe-west3-b"
 }
 
-variable "group_name" {
-    type = string
-}
-
-variable "global_forwarding_rule_name" {
-    type = string
-}
-
 variable "forwarding_port" {
     type = string
 }
 
-variable "proxy_name" {
+variable "ssl_name_prefix" {
   type = string
-}
-
-variable "ssl_name" {
-  type = string
+  default = "az"
 }
 
 variable "privat_key" {
@@ -37,10 +26,6 @@ variable "privat_key" {
 }
 
 variable "certificate" {
-  type = string
-}
-
-variable "backend_name" {
   type = string
 }
 
@@ -52,18 +37,19 @@ variable "backend_port" {
   type = string
 }
 
-variable "healthcheck_name" {
-    type = string
-}
-
-variable "url_map_name" {
-  type = string
-}
-
 variable "instances" {
   type = list
 }
 
 variable "healthcheck_port" {
   type = string
+}
+
+variable "lb_ip" {
+  type = string
+}
+
+variable "names_prefix" {
+  type = string
+  default = "az"
 }

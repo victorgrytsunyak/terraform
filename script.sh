@@ -18,3 +18,9 @@ IP: $IP
 Metadata: $METADATA
 </pre>
 EOF
+
+curl -L --output cloudflared.rpm https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-x86_64.rpm && 
+
+sudo yum localinstall -y cloudflared.rpm && 
+
+sudo cloudflared service install eyJhIjoiNDQ4ZWU4MGE1YzdhMWExZTcxZjkzMWZlZThjYzgyZTMiLCJ0IjoiYWUxNTQ2ZjgtNzJjMS00OGUyLTg4YzMtMjhlNTk1MTM3MTM4IiwicyI6Ill6UXlOR1kwT0dRdE5qazVZaTAwWkdOaExXSTVaREl0TldRNU5UY3hZemxpTWpZNCJ9

@@ -20,7 +20,7 @@ resource "google_compute_instance" "vms" {
     network = var.network
     subnetwork = var.subnetwork
     # access_config {
-      
+    # nat_ip = ""
     # }
   }
 

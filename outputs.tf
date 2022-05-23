@@ -13,3 +13,7 @@ output "vm_count_id" {
 output "ip_address" {
   value = module.lb.ip_address
 }
+
+output "global_ip_address" {
+  value = google_compute_global_address.lb_global_ip.address
+}

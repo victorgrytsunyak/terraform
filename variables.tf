@@ -102,3 +102,8 @@ variable "metadata_key" {
     EOT
   }]
 }
+
+variable "name_prefix" {
+  type = string
+  default = "az"
+}

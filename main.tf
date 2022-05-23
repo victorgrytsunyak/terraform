@@ -22,7 +22,7 @@ resource "google_service_account" "SA" {
 
 resource "google_project_iam_member" "project_roles" {
   for_each = toset([
-    "storage.objectAdmin"
+    "storage.objectAdmin", "compute.networkAdmin"
   ])
   project = var.project
   role    = "roles/${each.key}"
@@ -33,7 +33,7 @@ resource "google_project_iam_member" "project_roles" {
 module "ssh" {
   source            = "./modules/firewall"
   firewall_name     = "allow-ssh"
-  network           = "az-network"
+  network           = module.network.network_id //"${var.name_prefix}network"
   ip_source_ranges  = ["194.44.223.172/30"]
   firewall_ports    = ["22"]
   firewall_protocol = "tcp"
@@ -46,7 +46,7 @@ module "ssh" {
 module "http_https" {
   source            = "./modules/firewall"
   firewall_name     = "allow-http-https"
-  network           = "az-network"
+  network           = module.network.network_id //"${var.name_prefix}network"
   ip_source_ranges  = ["0.0.0.0/0"]
   firewall_ports    = ["80", "443"]
   firewall_protocol = "tcp"
@@ -76,13 +76,13 @@ resource "google_storage_bucket" "azimuth-bucket-store" {
 module "network" {
   source       = "./modules/network"
   project      = var.project
-  network_name = "az-network"
+  network_name = "${var.name_prefix}-network"
 }
 
 #module for creating subnetwork
 module "subnetwork" {
   source        = "./modules/subnetwork"
-  subnet_name   = "az-subnet"
+  subnet_name   = "${var.name_prefix}-subnet"
   ip_cidr_range = "10.10.10.0/24"
   depends_on = [
     module.network
@@ -94,10 +94,18 @@ module "instances" {
   source = "./modules/instances"
   for_each = {
 
-    "vm1" = { machine_type = "g1-small", image_vm = "centos-cloud/centos-7", startup_script = file("script.sh"), metadata = var.metadata.centos
+    "vm1" = { 
+      machine_type = "g1-small", 
+      image_vm = "centos-cloud/centos-7", 
+      startup_script = file("script.sh"), 
+      metadata = var.metadata.centos
     }
 
-    "vm2" = { machine_type = "f1-micro", image_vm = "ubuntu-os-cloud/ubuntu-2004-lts", startup_script = file("startup.sh"), metadata = var.metadata["ubuntu"]
+    "vm2" = { 
+      machine_type = "f1-micro", 
+      image_vm = "ubuntu-os-cloud/ubuntu-2004-lts", 
+      startup_script = file("startup.sh"), 
+      metadata = var.metadata["ubuntu"]
     }
   }
   subnetwork     = var.subnet_name
@@ -142,18 +150,49 @@ locals {
 
 module "lb" {
   source                      = "./modules/load_balancer"
-  group_name                  = "terraform-webservers"
   instances                   = concat(module.instances_count[*].instance_id, local.foreach_instnaces[*])
-  global_forwarding_rule_name = "az-global-forwarding-https-rule"
+  lb_ip                       = google_compute_global_address.lb_global_ip.address
   forwarding_port             = "443"
-  proxy_name                  = "az-proxy"
-  ssl_name                    = "my-certificate"
   privat_key                  = file("private.key")
   certificate                 = file("certificate.crt")
-  backend_name                = "az-http-backend-service"
   backend_port_name           = "http"
   backend_port                = "HTTP"
-  healthcheck_name            = "az-http-healthcheck"
   healthcheck_port            = 80
-  url_map_name                = "az-https-load-balancer"
+}
+
+resource "google_compute_router" "router" {
+  name    = "${var.name_prefix}-router"
+  region  = var.region
+  network = module.network.network_id
+
+  bgp {
+    asn = 64514
+  }
+}
+
+resource "google_compute_router_nat" "nat" {
+  name                               = "${var.name_prefix}-router-nat"
+  router                             = google_compute_router.router.name
+  region                             = google_compute_router.router.region
+  nat_ip_allocate_option             = "AUTO_ONLY"
+  source_subnetwork_ip_ranges_to_nat = "ALL_SUBNETWORKS_ALL_IP_RANGES"
+
+  log_config {
+    enable = true
+    filter = "ERRORS_ONLY"
+  }
+}
+
+resource "google_compute_global_address" "lb_global_ip" {
+  name = "${var.name_prefix}-global-appserver-ip"
+  address_type  = "EXTERNAL"
+  ip_version    = "IPV4"
+}
+
+resource "google_project_iam_custom_role" "custom-bucket-role" {
+  role_id     = "StroageAlmostAdmin"
+  title       = "Custom role for bucket"
+  permissions = ["storage.buckets.list", "storage.objects.get", "storage.objects.update",
+  "storage.buckets.get", "storage.objects.list", "storage.buckets.update", "storage.objects.create" 
+  ]
 }
