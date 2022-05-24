@@ -22,7 +22,7 @@ resource "google_service_account" "SA" {
 
 resource "google_project_iam_member" "project_roles" {
   for_each = toset([
-    "storage.objectAdmin", "compute.networkAdmin"
+    "compute.networkAdmin" //"storage.objectAdmin"
   ])
   project = var.project
   role    = "roles/${each.key}"
@@ -34,7 +34,7 @@ module "ssh" {
   source            = "./modules/firewall"
   firewall_name     = "allow-ssh"
   network           = module.network.network_id //"${var.name_prefix}network"
-  ip_source_ranges  = ["194.44.223.172/30"]
+  ip_source_ranges  = ["0.0.0.0/0"]
   firewall_ports    = ["22"]
   firewall_protocol = "tcp"
   tags              = ["ssh"]
@@ -94,18 +94,18 @@ module "instances" {
   source = "./modules/instances"
   for_each = {
 
-    "vm1" = { 
-      machine_type = "g1-small", 
-      image_vm = "centos-cloud/centos-7", 
-      startup_script = file("script.sh"), 
-      metadata = var.metadata.centos
+    "vm1" = {
+      machine_type   = "g1-small",
+      image_vm       = "centos-cloud/centos-7",
+      startup_script = file("script.sh"),
+      metadata       = var.metadata.centos
     }
 
-    "vm2" = { 
-      machine_type = "f1-micro", 
-      image_vm = "ubuntu-os-cloud/ubuntu-2004-lts", 
-      startup_script = file("startup.sh"), 
-      metadata = var.metadata["ubuntu"]
+    "vm2" = {
+      machine_type   = "f1-micro",
+      image_vm       = "ubuntu-os-cloud/ubuntu-2004-lts",
+      startup_script = file("startup.sh"),
+      metadata       = var.metadata["ubuntu"]
     }
   }
   subnetwork     = var.subnet_name
@@ -149,15 +149,15 @@ locals {
 }
 
 module "lb" {
-  source                      = "./modules/load_balancer"
-  instances                   = concat(module.instances_count[*].instance_id, local.foreach_instnaces[*])
-  lb_ip                       = google_compute_global_address.lb_global_ip.address
-  forwarding_port             = "443"
-  privat_key                  = file("private.key")
-  certificate                 = file("certificate.crt")
-  backend_port_name           = "http"
-  backend_port                = "HTTP"
-  healthcheck_port            = 80
+  source            = "./modules/load_balancer"
+  instances         = concat(module.instances_count[*].instance_id, local.foreach_instnaces[*])
+  lb_ip             = google_compute_global_address.lb_global_ip.address
+  forwarding_port   = "443"
+  privat_key        = file("private.key")
+  certificate       = file("certificate.crt")
+  backend_port_name = "http"
+  backend_port      = "HTTP"
+  healthcheck_port  = 80
 }
 
 resource "google_compute_router" "router" {
@@ -184,15 +184,43 @@ resource "google_compute_router_nat" "nat" {
 }
 
 resource "google_compute_global_address" "lb_global_ip" {
-  name = "${var.name_prefix}-global-appserver-ip"
-  address_type  = "EXTERNAL"
-  ip_version    = "IPV4"
+  name         = "${var.name_prefix}-global-appserver-ip"
+  address_type = "EXTERNAL"
+  ip_version   = "IPV4"
 }
 
 resource "google_project_iam_custom_role" "custom-bucket-role" {
-  role_id     = "StroageAlmostAdmin"
-  title       = "Custom role for bucket"
-  permissions = ["storage.buckets.list", "storage.objects.get", "storage.objects.update",
-  "storage.buckets.get", "storage.objects.list", "storage.buckets.update", "storage.objects.create" 
+  project = var.project
+  role_id = "BucketAdmin"
+  title   = "Custom role for bucket admin"
+  permissions = [
+    "firebase.projects.get",
+    "orgpolicy.policy.get",
+    "storage.buckets.create",
+    "storage.buckets.createTagBinding",
+    "storage.buckets.get",
+    "storage.buckets.getIamPolicy",
+    "storage.buckets.list",
+    "storage.buckets.listEffectiveTags",
+    "storage.buckets.listTagBindings",
+    "storage.buckets.setIamPolicy",
+    "storage.buckets.update",
+    "storage.multipartUploads.abort",
+    "storage.multipartUploads.create",
+    "storage.multipartUploads.list",
+    "storage.multipartUploads.listParts",
+    "storage.objects.create",
+    "storage.objects.delete",
+    "storage.objects.get",
+    "storage.objects.getIamPolicy",
+    "storage.objects.list",
+    "storage.objects.setIamPolicy",
+    "storage.objects.update"
   ]
+}
+
+resource "google_project_iam_binding" "custom_role" {
+  role    = google_project_iam_custom_role.custom-bucket-role.id
+  project = var.project
+  members = ["serviceAccount:azimuth@azimuthtv10-347408.iam.gserviceaccount.com"]
 }

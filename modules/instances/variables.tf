@@ -56,5 +56,5 @@ variable "email" {
 
 variable "scope" {
   type  = list
-  default = ["storage-rw"]
+  default = ["cloud-platform"]
 }

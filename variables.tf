@@ -104,6 +104,6 @@ variable "metadata_key" {
 }
 
 variable "name_prefix" {
-  type = string
+  type    = string
   default = "az"
 }
