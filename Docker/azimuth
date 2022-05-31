@@ -1,0 +1,10 @@
+server { 
+	listen 		80;
+  	server_name  azimuth;
+	
+	location /html { 
+		root 	/var/www/html;
+		index	index.html; # search file from /var/www/html/custom_index.html 
+}
+}
+

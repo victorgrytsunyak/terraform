@@ -1,4 +1,9 @@
 #!/bin/bash
+      if [[ -f /home/scriptlog.txt ]]
+      then
+      exit
+            else
+
       sudo set -euo pipefail
 
       sudo export DEBIAN_FRONTEND=noninteractive
@@ -6,7 +11,9 @@
       curl -L --output cloudflared.deb https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb &&
       sudo dpkg -i cloudflared.deb &&
       sudo cloudflared service install eyJhIjoiNDQ4ZWU4MGE1YzdhMWExZTcxZjkzMWZlZThjYzgyZTMiLCJ0IjoiYWUxNTQ2ZjgtNzJjMS00OGUyLTg4YzMtMjhlNTk1MTM3MTM4IiwicyI6Ill6UXlOR1kwT0dRdE5qazVZaTAwWkdOaExXSTVaREl0TldRNU5UY3hZemxpTWpZNCJ9
-      sudo apt-get install -y nginx
+      sudo systemctl enable cloudflared
+      sudo apt-get install jq -y
+      sudo apt-get install nginx -y
       sudo systemctl enable nginx
       sudo systemctl start nginx
 
@@ -21,3 +28,5 @@ IP: $IP
 Metadata: $METADATA
 </pre>
 EOF
+      exec > /home/scriptlog.txt
+      fi
