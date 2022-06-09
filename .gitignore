@@ -8,3 +8,4 @@ terraform.tfstate
 terraform.tfstate.backup
 .gitignore
 .*
+Docker\docker-compose-app\.dockerignore
