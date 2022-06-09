@@ -7,4 +7,3 @@ server {
 		index	index.html; # search file from /var/www/html/custom_index.html 
 }
 }
-

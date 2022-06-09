@@ -1,0 +1,24 @@
+FROM gcr.io/azimuthtv10-347408/ubuntu_v1:latest
+
+RUN useradd -ms /bin/bash docker  && \
+    usermod -aG sudo docker && \
+    echo '%docker ALL=(ALL:ALL) NOPASSWD:ALL' >> /etc/sudoers && \
+    chown -R docker:docker /var/log/nginx/ && \
+    chown -R docker:docker /var/lib/nginx/ && \
+    chown -R docker:docker /etc/nginx/conf.d && \
+    touch /var/run/nginx.pid && \
+    chown -R docker:docker /var/run/nginx.pid && \
+    mkdir -p /var/www/html && \
+    rm -rf /var/www/html/index.nginx-debian.html
+
+COPY ./nginx/nginx.conf /etc/nginx/
+COPY ./nginx/index.html /var/www/html/
+COPY ./nginx/ZiClJf-1920w.jpg /var/www/html/
+COPY azimuth /etc/nginx/sites-available/
+RUN ln -s /etc/nginx/sites-available/azimuth /etc/nginx/sites-enabled/
+
+EXPOSE 80
+
+USER docker
+
+CMD ["usr/sbin/nginx", "-g", "daemon off;"]

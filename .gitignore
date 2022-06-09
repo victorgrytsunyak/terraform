@@ -1,0 +1,5 @@
+admin.*
+certificate.crt
+private.key
+.github
+.terraform
