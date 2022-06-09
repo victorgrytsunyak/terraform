@@ -1,5 +1,8 @@
 admin.*
+admin
 certificate.crt
 private.key
 .github
 .terraform
+terraform.tfstate
+terraform.tfstate.backup
