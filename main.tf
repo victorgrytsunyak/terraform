@@ -225,6 +225,6 @@ resource "google_project_iam_binding" "custom_role" {
   members = ["serviceAccount:azimuth@azimuthtv10-347408.iam.gserviceaccount.com"]
 }
 
-resource "google_container_cluster" "app" {
+# resource "google_container_cluster" "app" {
   
-}
+# }
