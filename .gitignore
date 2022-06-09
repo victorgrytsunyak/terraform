@@ -6,3 +6,4 @@ private.key
 .terraform
 terraform.tfstate
 terraform.tfstate.backup
+.gitignore
