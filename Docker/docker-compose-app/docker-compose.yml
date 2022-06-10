@@ -2,6 +2,7 @@ version: '3.3'
 services:
   my-app:
     image: my-app:1.0
+    build: .
     ports:
       - 3000:3000
   mongodb:
@@ -9,8 +10,8 @@ services:
     ports:
       - 27017:27017
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=admin
-      - MONGO_INITDB_ROOT_PASSWORD=password
+      - MONGO_INITDB_ROOT_USERNAME=${ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${ROOT_PASSWORD}
     volumes:
       - mongo-data:/data/db
   mongo-express:
@@ -19,9 +20,9 @@ services:
     ports:
       - 8080:8081
     environment:
-      - ME_CONFIG_MONGODB_ADMINUSERNAME=admin
-      - ME_CONFIG_MONGODB_ADMINPASSWORD=password
-      - ME_CONFIG_MONGODB_SERVER=mongodb
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=${MONGODB_ADMINUSERNAME}
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=${MONGODB_ADMINPASSWORD}
+      - ME_CONFIG_MONGODB_SERVER=${MONGODB_SERVER}
 volumes:
   mongo-data:
     driver: local
