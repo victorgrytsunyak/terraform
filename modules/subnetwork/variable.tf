@@ -5,7 +5,7 @@ variable "project" {
 
 variable "ip_cidr_range" {
     type = string
-    default = "10.10.10.0/24"
+    default = "10.0.0.0/18"
 }
 
 variable "subnet_name" {
