@@ -429,6 +429,6 @@ resource "google_service_account_iam_binding" "cluster-admin-iam" {
   role               = "roles/iam.workloadIdentityUser"
 
   members = [
-    "serviceAccount:cluster-admin@azimuthtv10-347408.iam.gserviceaccount.com",
+    "serviceAccount:azimuthtv10-347408.svc.id.goog[default/cluster-admin]"
   ]
 }
