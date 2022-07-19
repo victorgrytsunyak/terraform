@@ -14,5 +14,11 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+    
+    - id: 'auth'
+      name: 'Authenticate to Google Cloud'
+      uses: 'google-github-actions/auth@v0'
+      with:
+        credentials_json: '${{ secrets.GSR_SECRET_KEY }}'
     - name: Build the Docker image
       run: docker build . --file Docker/Dockerfile.v1 --tag test-image:$(date +%s)
